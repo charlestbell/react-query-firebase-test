@@ -1,6 +1,7 @@
+import { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
-import { firestore } from "./firebase";
+import { db } from "./firebase";
 import { useFirestoreQuery } from "@react-query-firebase/firestore";
 import {
   query,
@@ -8,44 +9,39 @@ import {
   limit,
   QuerySnapshot,
   DocumentData,
+  getDocs,
 } from "firebase/firestore";
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQuery } from "react-query";
+import Page from "./Page";
+// const queryClient = new QueryClient();
 
 export default function App() {
-  // Define a query reference using the Firebase SDK
-  const ref = query(collection(firestore, "logbooks"));
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      let querySnapshot;
+      try {
+        querySnapshot = await getDocs(collection(db, "logbooks"));
+      } catch (error) {
+        console.log("ERROR:", error);
+      }
+      console.log("QUERY SNAPSHOT", querySnapshot);
+      setData(querySnapshot);
+      querySnapshot.forEach((doc) => {
+        console.log(`${doc.id} => ${doc.data()}`);
+      });
+    };
+    fetchData();
+  }, []);
 
-  // Provide the query to the hook
-  const query = useFirestoreQuery(["logbooks"], ref);
-
-  if (query.isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  const snapshot = query.data;
-
-  return snapshot.docs.map((docSnapshot) => {
-    const data = docSnapshot.data();
-
-    return (
-      <View style={styles.container}>
-        <Text>Open up App.js to start working on your app!</Text>
-        <StatusBar style="auto" />
-        <div key={docSnapshot.id}>{data.name}</div>;
-      </View>
-    );
-  });
+  // return (
+  //   <QueryClientProvider client={queryClient}>
+  //     <Page />
+  //   </QueryClientProvider>
+  // );
+  return (
+    <View>
+      <Text style={{ marginTop: 100 }}>Hello World {JSON.stringify(data)}</Text>
+    </View>
+  );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
