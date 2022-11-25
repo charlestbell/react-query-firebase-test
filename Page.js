@@ -2,15 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { db } from "./firebase";
 import { useFirestoreQuery } from "@react-query-firebase/firestore";
-import {
-  query,
-  collection,
-  limit,
-  QuerySnapshot,
-  DocumentData,
-  where,
-} from "firebase/firestore";
-import { useEffect } from "react";
+import { query, collection, where } from "firebase/firestore";
 
 export default function Page() {
   // Define a query reference using the Firebase SDK
@@ -22,12 +14,6 @@ export default function Page() {
   // Provide the query to the hook
   const { isLoading, data: logbooks } = useFirestoreQuery(["logbooks"], ref);
 
-  //   useEffect(() => {
-  //     if (!isLoading) {
-  //       console.log("LOGBOOKS", data.docs);
-  //       data.docs.forEach((logbook) => console.log("logbook", logbook.data()));
-  //     }
-  //   }, [logbooks, isLoading]);
   console.log("IS LOADING", isLoading);
   if (isLoading) {
     return <Text>Loading...</Text>;
@@ -38,7 +24,6 @@ export default function Page() {
       <StatusBar style="auto" />
       {logbooks.docs.map((logbookSnapshot) => {
         const logbook = logbookSnapshot.data();
-        console.log("LOGBOOK", logbook);
         return <Text key={logbook.id}>{JSON.stringify(logbook.title)}</Text>;
       })}
     </View>
